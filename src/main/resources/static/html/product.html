@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ecart - Product Details</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #11182a;
+      --panel-2: #0e1424;
+      --text: #e8eefc;
+      --muted: #a9b4ce;
+      --primary: #4f8cff;
+      --primary-600: #3e73d4;
+      --border: #1e2741;
+      --accent: #21d4fd;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --danger: #ff6b6b;
+      --gold: #ffb400;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 10% -10%, #183153 0%, transparent 60%),
+        radial-gradient(1200px 700px at 110% 10%, #1a2d4f 0%, transparent 60%),
+        linear-gradient(180deg, #0a0f1f 0%, #0b1020 100%);
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar { position: sticky; top: 0; z-index: 50; background: linear-gradient(180deg, #0e162c 0%, #0c1428 100%); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
+    .topbar-inner { max-width: 1200px; margin: 0 auto; padding: 10px 16px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; }
+    .brand .logo { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 70%); box-shadow: 0 8px 24px rgba(79,140,255,.35); }
+    .nav { display: inline-flex; gap: 10px; justify-content: flex-end; align-items: center; }
+    .link { padding: 8px 12px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,0.02); text-decoration: none; font-size: 12px; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px 40px; }
+    .layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 900px) { .layout { grid-template-columns: 1.1fr 0.9fr; } }
+    .panel { background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+    .panel-body { padding: 16px; }
+    .img { width: 100%; height: 380px; object-fit: cover; background: #0b1224; border-bottom: 1px solid var(--border); }
+    .title { font-size: 24px; margin: 0 0 6px; }
+    .muted { color: var(--muted); }
+    .price { font-weight: 800; font-size: 22px; }
+    .qty { width: 120px; padding: 10px 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; color: var(--text); }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .btn { appearance: none; border: 0; padding: 12px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; color: white; box-shadow: 0 8px 18px rgba(79,140,255,.25); }
+    .btn-primary { background: linear-gradient(180deg, var(--primary) 0%, var(--primary-600) 100%); }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); box-shadow: none; }
+    .btn-danger { background: linear-gradient(180deg, var(--danger) 0%, #e85b5b 100%); }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><div class="logo" aria-hidden="true"></div><div>Ecart</div></div>
+      <div></div>
+      <nav class="nav">
+        <a class="link" href="index.html">Home</a>
+        <a class="link" href="products.html">Products</a>
+        <a class="link" href="wishlist.html">Wishlist</a>
+        <a class="link" href="cart.html">Cart</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="layout">
+      <section class="panel">
+        <img id="pImg" class="img" src="" alt="Product image" />
+        <div class="panel-body">
+          <h1 id="pName" class="title"></h1>
+          <div class="muted" id="pId"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-body">
+          <div class="price" id="pPrice"></div>
+          <div class="muted" style="margin-top:6px;">Ships in 2-4 days · Free returns</div>
+          <div class="actions" style="margin-top:12px;align-items:center;">
+            <input id="qty" class="qty" type="number" min="1" step="1" value="1" />
+            <button class="btn btn-primary" onclick="addToCart()">Add to Cart</button>
+            <button class="btn btn-ghost" onclick="toggleWishlist()" id="wishBtn">Add to Wishlist</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="toast-root" aria-live="polite" aria-atomic="true" style="position:fixed;top:16px;right:16px;display:grid;gap:10px;z-index:2000;"></div>
+
+  <script>
+    const currency = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' });
+    const catalog = {
+      'B00X4WHP5E': { id: 'B00X4WHP5E', name: 'Noise‑Canceling Headphones', price: 129.99, img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop' },
+      'B08K2S1H5L': { id: 'B08K2S1H5L', name: '4K Ultra HD Monitor 27"', price: 289.00, img: 'https://images.unsplash.com/photo-1588200908342-23b585c03e26?q=60&w=600&auto=format&fit=crop' },
+      'B09G6SB1M7': { id: 'B09G6SB1M7', name: 'Mechanical Keyboard RGB', price: 89.50, img: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?q=80&w=800&auto=format&fit=crop' },
+      'B07Y8XJ8LN': { id: 'B07Y8XJ8LN', name: 'Wireless Mouse Pro', price: 39.95, img: 'https://images.unsplash.com/photo-1514254651968-1c86261335e9?q=60&w=600&auto=format&fit=crop' },
+      'B0A9M8N7L6': { id: 'B0A9M8N7L6', name: 'Portable SSD 1TB', price: 119.00, img: 'https://images.unsplash.com/photo-1719937206300-fc0dac6f8cac?q=60&w=600&auto=format&fit=crop' },
+      'B0D5E6F7G8': { id: 'B0D5E6F7G8', name: 'Smart Speaker Mini', price: 49.00, img: 'https://images.unsplash.com/photo-1549638767-0ccf6cb1281b?q=60&w=600&auto=format&fit=crop' },
+      'B081T7YV7B': { id: 'B081T7YV7B', name: '1080p Webcam', price: 59.00, img: 'https://images.unsplash.com/photo-1726127461372-547b9ffa4236?q=80&w=972&auto=format&fit=crop' }
+    };
+    const placeholder = 'https://via.placeholder.com/640x380/0b1020/e8eefc?text=No+Image';
+
+    function showToast(message, type = 'info', timeoutMs = 2200) {
+      const root = document.getElementById('toast-root');
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = message;
+      el.style.cssText = 'padding:12px 14px;border-radius:10px;color:white;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.35);border:1px solid var(--border);background:linear-gradient(180deg,#4f8cff 0%,#3e73d4 100%);';
+      root.appendChild(el);
+      setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateY(-4px)'; setTimeout(() => el.remove(), 180); }, timeoutMs);
+    }
+
+    function getWishlist() {
+      try { return JSON.parse(localStorage.getItem('wishlist') || '[]'); } catch { return []; }
+    }
+    function setWishlist(ids) { localStorage.setItem('wishlist', JSON.stringify(ids || [])); }
+    function inWishlist(id) { return getWishlist().includes(id); }
+
+    function toggleWishlist() {
+      const id = state.id;
+      const ids = getWishlist();
+      const idx = ids.indexOf(id);
+      if (idx >= 0) { ids.splice(idx,1); showToast('Removed from wishlist', 'info'); }
+      else { ids.push(id); showToast('Added to wishlist', 'success'); }
+      setWishlist(ids);
+      syncWishBtn();
+    }
+
+    function syncWishBtn() {
+      const btn = document.getElementById('wishBtn');
+      if (!btn) return;
+      btn.textContent = inWishlist(state.id) ? 'Remove from Wishlist' : 'Add to Wishlist';
+    }
+
+    function addToCart() {
+      const qty = Math.max(1, Number(document.getElementById('qty').value) || 1);
+      // Pass selection to cart via sessionStorage prefill
+      sessionStorage.setItem('prefillProductId', state.id);
+      sessionStorage.setItem('prefillQuantity', String(qty));
+      window.location.href = 'cart.html';
+    }
+
+    function params() { return new URLSearchParams(window.location.search); }
+    const state = { id: params().get('id') || '' };
+
+    (function init(){
+      const p = catalog[state.id];
+      if (!p) { document.title = 'Product Not Found · Ecart'; showToast('Product not found', 'error'); return; }
+      document.title = `${p.name} · Ecart`;
+      document.getElementById('pName').textContent = p.name;
+      document.getElementById('pId').textContent = p.id;
+      document.getElementById('pPrice').textContent = currency.format(p.price);
+      const img = document.getElementById('pImg');
+      img.src = p.img || placeholder;
+      img.onerror = function(){ this.onerror=null; this.src = placeholder; };
+      syncWishBtn();
+    })();
+  </script>
+</body>
+</html>
+
+

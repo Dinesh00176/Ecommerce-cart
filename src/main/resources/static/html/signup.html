@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ecart - Sign Up</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #11182a;
+      --panel-2: #0e1424;
+      --text: #e8eefc;
+      --muted: #a9b4ce;
+      --primary: #4f8cff;
+      --primary-600: #3e73d4;
+      --border: #1e2741;
+      --accent: #21d4fd;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --success: #22c55e;
+      --danger: #ff6b6b;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 10% -10%, #183153 0%, transparent 60%),
+        radial-gradient(1200px 700px at 110% 10%, #1a2d4f 0%, transparent 60%),
+        linear-gradient(180deg, #0a0f1f 0%, #0b1020 100%);
+      display: grid; place-items: center; padding: 20px;
+    }
+
+    .top-link { position: fixed; top: 12px; left: 12px; }
+    .link { padding: 8px 12px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,0.02); text-decoration: none; font-size: 12px; }
+
+    .signup-container { width: 100%; max-width: 420px; background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+    .signup-header { padding: 32px 24px 24px; text-align: center; border-bottom: 1px solid var(--border); }
+    .logo { width: 60px; height: 60px; border-radius: 16px; background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 70%); box-shadow: 0 12px 32px rgba(79, 140, 255, 0.35); margin: 0 auto 16px; }
+    .brand-title { font-size: 28px; font-weight: 800; margin: 0 0 8px; letter-spacing: 0.5px; }
+    .brand-subtitle { color: var(--muted); font-size: 14px; margin: 0; }
+    .signup-body { padding: 24px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 600; letter-spacing: 0.3px; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 14px 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 16px; outline: none; transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; }
+    input::placeholder { color: #7e89a7; }
+    input:focus { background: rgba(255, 255, 255, 0.05); border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15); }
+    .btn { appearance: none; border: 0; padding: 14px 20px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 8px; background: linear-gradient(180deg, var(--primary) 0%, var(--primary-600) 100%); box-shadow: 0 8px 24px rgba(79, 140, 255, 0.25); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .helper { font-size: 12px; color: var(--muted); margin-top: 8px; text-align:center; }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="link top-link">← Back</a>
+  <div class="signup-container">
+    <div class="signup-header">
+      <div class="logo" aria-hidden="true"></div>
+      <h1 class="brand-title">Create your Ecart account</h1>
+      <p class="brand-subtitle">Sign up to start managing your cart</p>
+    </div>
+
+    <div class="signup-body">
+      <form id="signupForm" onsubmit="handleSignup(event)">
+        <div class="form-group">
+          <label for="newUsername">Username</label>
+          <input type="text" id="newUsername" placeholder="Choose a username" autocomplete="username" required />
+        </div>
+        <div class="form-group">
+          <label for="newPassword">Password</label>
+          <input type="password" id="newPassword" placeholder="Choose a password" autocomplete="new-password" required />
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" placeholder="Re-enter password" autocomplete="new-password" required />
+        </div>
+        <button class="btn" type="submit" id="signupBtn">Create Account</button>
+      </form>
+      <p class="helper">Already have an account? <a href="login.html" class="link">Sign in</a></p>
+    </div>
+  </div>
+
+  <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    function showToast(message, type = 'info', timeoutMs = 2800) {
+      const root = document.getElementById('toast-root');
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      el.textContent = message;
+      // lightweight inline style for toasts
+      el.style.cssText = 'padding:12px 14px;border-radius:10px;color:white;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.35);border:1px solid #1e2741;background:linear-gradient(180deg,#4f8cff 0%,#3e73d4 100%);margin:10px 0;';
+      root.appendChild(el);
+      setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateY(-4px)'; setTimeout(() => el.remove(), 180); }, timeoutMs);
+    }
+
+    function loadUsers() { try { return JSON.parse(localStorage.getItem('users') || '{}'); } catch { return {}; } }
+    function saveUsers(users) { localStorage.setItem('users', JSON.stringify(users || {})); }
+
+    function handleSignup(e) {
+      e.preventDefault();
+      const btn = document.getElementById('signupBtn');
+      btn.disabled = true;
+      const u = (document.getElementById('newUsername').value || '').trim();
+      const p = document.getElementById('newPassword').value || '';
+      const c = document.getElementById('confirmPassword').value || '';
+      setTimeout(() => {
+        try {
+          if (!u || !p || !c) throw new Error('Fill in all fields');
+          if (p !== c) throw new Error('Passwords do not match');
+          const reserved = { admin: true, manager: true, user: true };
+          if (reserved[u]) throw new Error('Username reserved');
+          const users = loadUsers();
+          if (users[u]) throw new Error('User already exists');
+          users[u] = p;
+          saveUsers(users);
+          showToast('Account created. Redirecting to login...', 'success');
+          setTimeout(() => { window.location.href = 'login.html'; }, 900);
+        } catch (err) {
+          showToast(err.message || 'Could not create account', 'error');
+          btn.disabled = false;
+        }
+      }, 300);
+    }
+
+    document.getElementById('newUsername').focus();
+  </script>
+</body>
+</html>

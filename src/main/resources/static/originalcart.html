@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ecart - Cart Management</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #11182a;
+      --panel-2: #0e1424;
+      --text: #e8eefc;
+      --muted: #a9b4ce;
+      --primary: #4f8cff;
+      --primary-600: #3e73d4;
+      --danger: #ff6b6b;
+      --danger-600: #e85b5b;
+      --border: #1e2741;
+      --accent: #21d4fd;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --gold: #ffb400;
+      --gold-600: #d89b00;
+      --success: #22c55e;
+      --success-600: #16a34a;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 10% -10%, #183153 0%, transparent 60%),
+        radial-gradient(1200px 700px at 110% 10%, #1a2d4f 0%, transparent 60%),
+        linear-gradient(180deg, #0a0f1f 0%, #0b1020 100%);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: linear-gradient(180deg, #0e162c 0%, #0c1428 100%);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .topbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+    .brand .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 70%);
+      box-shadow: 0 8px 24px rgba(79, 140, 255, 0.35);
+    }
+    .searchbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .searchbar input {
+      background: transparent;
+      border: 0;
+      outline: none;
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+    .searchbar button {
+      appearance: none;
+      border: 0;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--primary-600) 100%);
+      color: white;
+      font-weight: 700;
+      padding: 0 16px;
+      cursor: pointer;
+    }
+    .top-actions { display: inline-flex; align-items: center; gap: 10px; }
+    .pill {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.02);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .title { display: flex; align-items: center; gap: 12px; }
+    h1 { margin: 0; font-size: 24px; letter-spacing: 0.3px; }
+    .subtitle { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+    .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    @media (min-width: 1000px) { .grid { grid-template-columns: 1fr 1.1fr; } }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .card-body { padding: 16px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 12px 14px; }
+    @media (min-width: 640px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+    input::placeholder { color: #7e89a7; }
+    input:focus {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+    }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .btn {
+      appearance: none;
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.04s ease, background 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 18px rgba(79, 140, 255, 0.25);
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+    .btn-primary { background: linear-gradient(180deg, var(--primary) 0%, var(--primary-600) 100%); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); box-shadow: none; }
+    .btn-danger { background: linear-gradient(180deg, var(--danger) 0%, var(--danger-600) 100%); box-shadow: 0 8px 18px rgba(255, 107, 107, 0.25); }
+    .btn-gold { background: linear-gradient(180deg, var(--gold) 0%, var(--gold-600) 100%); color: #141414; box-shadow: 0 8px 18px rgba(255, 180, 0, 0.25); }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .table th, .table td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .table th {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+    .table tr:last-child td { border-bottom: 0; }
+    .right { text-align: right; white-space: nowrap; }
+    .muted { color: var(--muted); }
+
+    .product-cell {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .thumb {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      object-fit: cover;
+      background: #0b1224;
+    }
+    .title-sm { font-weight: 700; }
+    .badge {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.02);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qty-price { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 220px; }
+
+    .summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (min-width: 640px) { .gallery { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1000px) { .gallery { grid-template-columns: repeat(4, 1fr); } }
+    .p-card {
+      display: grid;
+      gap: 8px;
+      background: linear-gradient(180deg, #10182b 0%, #0f172a 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.1s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .p-card:hover { transform: translateY(-1px); border-color: #2a3557; box-shadow: var(--shadow); }
+    .p-img { width: 100%; height: 140px; object-fit: cover; background: #0b1224; }
+    .p-body { padding: 10px; display: grid; gap: 6px; }
+    .p-name { font-weight: 700; font-size: 14px; }
+    .p-meta { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; }
+    .p-actions { padding: 10px; display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+
+    #toast-root {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      display: grid;
+      gap: 10px;
+      z-index: 2000;
+    }
+    .toast {
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      animation: toast-in 0.22s ease both;
+    }
+    .toast-success { background: linear-gradient(180deg, #23c55e 0%, #16a34a 100%); }
+    .toast-error { background: linear-gradient(180deg, #f87171 0%, #ef4444 100%); }
+    .toast-info { background: linear-gradient(180deg, var(--primary) 0%, var(--primary-600) 100%); }
+    @keyframes toast-in {
+      from { transform: translateY(-6px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .helper { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    .spacer { height: 4px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>Ecart</div>
+      </div>
+      <div class="searchbar" role="search">
+        <input type="text" id="catalogSearch" placeholder="Search products..." autocomplete="off" oninput="filterCatalog()" />
+        <button onclick="filterCatalog()">Search</button>
+      </div>
+      <div class="top-actions">
+        <div class="pill">API: <span id="apiBaseBadge">http://localhost:8081</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <header class="header">
+      <div class="title">
+        <div>
+          <h1>Manage Cart</h1>
+          <p class="subtitle">Add items, view your cart, update or clear — all in one place.</p>
+        </div>
+      </div>
+      <div class="badge" title="Cart status">
+        <span>Secure checkout</span>
+      </div>
+    </header>
+
+    <section class="card" aria-label="Popular products">
+      <div class="card-header">
+        <strong>Popular products</strong>
+        <div class="muted">Click “Add to form” to pre-fill details</div>
+      </div>
+      <div class="card-body">
+        <div id="gallery" class="gallery"></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card" aria-label="Add or Update Cart Item">
+        <div class="card-header">
+          <strong>Add item to cart</strong>
+          <button class="btn btn-gold" onclick="prefillRandom()">Surprise me</button>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div>
+              <label for="userIdInput">User ID</label>
+              <input type="text" id="userIdInput" placeholder="Enter User ID" autocomplete="off" />
+            </div>
+            <div>
+              <label for="productIdInput">Product ID</label>
+              <input type="text" id="productIdInput" placeholder="Enter Product ID" autocomplete="off" />
+            </div>
+            <div>
+              <label for="productNameInput">Product Name</label>
+              <input type="text" id="productNameInput" placeholder="Enter Product Name" autocomplete="off" />
+            </div>
+            <div>
+              <label for="quantityInput">Quantity</label>
+              <input type="number" id="quantityInput" placeholder="1" min="1" step="1" />
+            </div>
+            <div>
+              <label for="priceInput">Price</label>
+              <input type="number" id="priceInput" placeholder="0.00" step="0.01" min="0.01" />
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" id="addBtn" onclick="addItemToCart()">Add / Update Cart</button>
+            <span class="helper">Adding an item overwrites the existing cart with this single-item cart for the user.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-label="View Cart">
+        <div class="card-header">
+          <strong>View cart</strong>
+          <span class="muted">Enter a User ID and fetch</span>
+        </div>
+        <div class="card-body">
+          <div class="form-grid" style="grid-template-columns: 1.4fr auto auto; align-items: end;">
+            <div>
+              <label for="fetchUserIdInput">User ID</label>
+              <input type="text" id="fetchUserIdInput" placeholder="Enter User ID to fetch cart" autocomplete="off" />
+            </div>
+            <div class="actions" style="margin:0">
+              <button class="btn btn-outline" id="fetchBtn" onclick="fetchCart()">Fetch Cart</button>
+              <button class="btn btn-danger" id="clearBtn" onclick="clearCart()">Clear Cart</button>
+            </div>
+            <div class="spacer"></div>
+          </div>
+
+          <div id="cartDisplay" style="margin-top: 16px;"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    const backendBaseUrl = 'http://localhost:8081';
+    document.getElementById('apiBaseBadge').textContent = backendBaseUrl;
+
+    const currency = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' });
+
+    const productCatalog = {
+      'B00X4WHP5E': { productId: 'B00X4WHP5E', productName: 'Noise‑Canceling Headphones', price: 129.99, image:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=870&auto=format&fit=crop"},
+      'B08K2S1H5L': { productId: 'B08K2S1H5L', productName: '4K Ultra HD Monitor 27\"', price: 289.00, image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=800&auto=format&fit=crop' },
+      'B09G6SB1M7': { productId: 'B09G6SB1M7', productName: 'Mechanical Keyboard RGB', price: 89.50, image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=800&auto=format&fit=crop' },
+      'B07Y8XJ8LN': { productId: 'B07Y8XJ8LN', productName: 'Wireless Mouse Pro', price: 39.95, image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?q=80&w=800&auto=format&fit=crop' },
+      'B0C1Q2R3S4': { productId: 'B0C1Q2R3S4', productName: 'USB‑C Hub 7‑in‑1', price: 54.99, image: 'https://media.istockphoto.com/id/493540036/photo/usb-type-c-plug-and-cable-usb-c-connection-detail.webp?a=1&b=1&s=612x612&w=0&k=20&c=o96Sv3qOzhQIW36l4O7l_Vyfd2_yItyqyaJNBI4UL94=&auto=format&fit=crop' },
+      'B0A9M8N7L6': { productId: 'B0A9M8N7L6', productName: 'Portable SSD 1TB', price: 119.00, image: 'https://images.unsplash.com/photo-1719937206300-fc0dac6f8cac?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fHBvcnRhYmxlJTIwc3NkfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600&auto=format&fit=crop' },
+      'B0D5E6F7G8': { productId: 'B0D5E6F7G8', productName: 'Smart Speaker Mini', price: 49.00, image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=800&auto=format&fit=crop' },
+      'B081T7YV7B': { productId: 'B081T7YV7B', productName: '1080p Webcam', price: 59.00, image: 'https://images.unsplash.com/photo-1726127461372-547b9ffa4236?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=972&auto=format&fit=crop' }
+    };
+    const placeholderImage = 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=800&auto=format&fit=crop';
+
+    function showToast(message, type = 'info', timeoutMs = 2200) {
+      const root = document.getElementById('toast-root');
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      el.textContent = message;
+      root.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-4px)';
+        setTimeout(() => el.remove(), 180);
+      }, timeoutMs);
+    }
+
+    function setBusy(buttonEl, busy) {
+      if (!buttonEl) return;
+      buttonEl.disabled = !!busy;
+    }
+
+    function parsePositiveInt(value) {
+      const n = Number.parseInt(String(value), 10);
+      return Number.isFinite(n) && n > 0 ? n : NaN;
+    }
+    function parsePositiveFloat(value) {
+      const n = Number.parseFloat(String(value));
+      return Number.isFinite(n) && n > 0 ? n : NaN;
+    }
+
+    async function handleJsonResponse(res) {
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(text || `Request failed (${res.status})`);
+      }
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) return res.json();
+      return null;
+    }
+
+    function renderGallery() {
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+      Object.values(productCatalog).forEach((p) => {
+        const card = document.createElement('div');
+        card.className = 'p-card';
+        card.innerHTML = `
+          <img class="p-img" src="${escapeAttr(p.image || placeholderImage)}" alt="${escapeAttr(p.productName)}" />
+          <div class="p-body">
+            <div class="p-name">${escapeHtml(p.productName)}</div>
+            <div class="p-meta">
+              <span>${currency.format(Number(p.price))}</span>
+              <span class="muted">${escapeHtml(p.productId)}</span>
+            </div>
+          </div>
+          <div class="p-actions">
+            <button class="btn btn-primary" onclick="prefillFormFromCatalog('${escapeAttr(p.productId)}')">Add to form</button>
+            <button class="btn btn-outline" onclick="viewDetails('${escapeAttr(p.productId)}')">Details</button>
+          </div>
+        `;
+        gallery.appendChild(card);
+      });
+    }
+
+    function filterCatalog() {
+      const q = (document.getElementById('catalogSearch').value || '').toLowerCase().trim();
+      const gallery = document.getElementById('gallery');
+      Array.from(gallery.children).forEach((card) => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(q) ? '' : 'none';
+      });
+    }
+
+    function prefillFormFromCatalog(productId) {
+      const p = productCatalog[productId];
+      if (!p) return;
+      document.getElementById('productIdInput').value = p.productId;
+      document.getElementById('productNameInput').value = p.productName;
+      document.getElementById('priceInput').value = String(p.price);
+      document.getElementById('quantityInput').value = '1';
+      showToast('Product pre-filled. Enter a User ID to add.', 'info');
+    }
+
+    function prefillRandom() {
+      const values = Object.values(productCatalog);
+      const pick = values[Math.floor(Math.random() * values.length)];
+      prefillFormFromCatalog(pick.productId);
+    }
+
+    function viewDetails(productId) {
+      const p = productCatalog[productId];
+      if (!p) return;
+      showToast(`${p.productName} — ${currency.format(p.price)}`, 'info', 2000);
+    }
+
+    async function addItemToCart() {
+      const addBtn = document.getElementById('addBtn');
+      setBusy(addBtn, true);
+
+      try {
+        const userId = document.getElementById('userIdInput').value.trim();
+        const productId = document.getElementById('productIdInput').value.trim();
+        const productName = document.getElementById('productNameInput').value.trim();
+        const quantity = parsePositiveInt(document.getElementById('quantityInput').value);
+        const price = parsePositiveFloat(document.getElementById('priceInput').value);
+
+        if (!userId || !productId || !productName || !Number.isFinite(quantity) || !Number.isFinite(price)) {
+          showToast('Please fill in all fields correctly.', 'error');
+          return;
+        }
+
+        const payload = {
+          userId,
+          items: [{ productId, productName, quantity, price }]
+        };
+
+        const res = await fetch(`${backendBaseUrl}/cart`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload),
+          cache: 'no-store'
+        });
+        await handleJsonResponse(res);
+        showToast('Cart updated successfully!', 'success');
+
+        const fetchUser = document.getElementById('fetchUserIdInput');
+        if (!fetchUser.value) fetchUser.value = userId;
+        await fetchCart();
+      } catch (err) {
+        showToast(err.message || 'Failed to add/update cart', 'error');
+      } finally {
+        setBusy(addBtn, false);
+      }
+    }
+
+    async function fetchCart() {
+      const userId = document.getElementById('fetchUserIdInput').value.trim();
+      const btn = document.getElementById('fetchBtn');
+      setBusy(btn, true);
+
+      if (!userId) {
+        showToast('Please enter a User ID', 'error');
+        setBusy(btn, false);
+        return;
+      }
+
+      const container = document.getElementById('cartDisplay');
+      container.innerHTML = '';
+
+      try {
+        const res = await fetch(`${backendBaseUrl}/cart/${encodeURIComponent(userId)}`, { cache: 'no-store' });
+        if (res.status === 404) {
+          container.innerHTML = '<p class="muted">No cart found for this user.</p>';
+          return;
+        }
+        const cart = await handleJsonResponse(res);
+        renderCart(container, userId, cart);
+      } catch (err) {
+        showToast(err.message || 'Failed to fetch cart', 'error');
+      } finally {
+        setBusy(btn, false);
+      }
+    }
+
+    function renderCart(container, userId, cart) {
+      container.innerHTML = '';
+      if (!cart || !Array.isArray(cart.items) || cart.items.length === 0) {
+        container.innerHTML = '<p class="muted">Cart is empty.</p>';
+        return;
+      }
+
+      const table = document.createElement('table');
+      table.className = 'table';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>IDs</th>
+            <th>Quantity & Price</th>
+            <th class="right">Subtotal</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+      const tbody = table.querySelector('tbody');
+
+      let totalQuantity = 0;
+      let totalAmount = 0;
+
+      cart.items.forEach((item) => {
+        const qty = Number(item.quantity) || 0;
+        const pr = Number(item.price) || 0;
+        const subtotal = qty * pr;
+        totalQuantity += qty;
+        totalAmount += subtotal;
+
+        const catalog = productCatalog[item.productId] || {};
+        const imgSrc = catalog.image || placeholderImage;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div class="product-cell">
+              <img class="thumb" src="${escapeAttr(imgSrc)}" alt="${escapeAttr(item.productName)}" />
+              <div>
+                <div class="title-sm">${escapeHtml(item.productName)}</div>
+                <div class="muted">${currency.format(pr)}</div>
+              </div>
+            </div>
+          </td>
+          <td class="muted">
+            <div>Product: <strong>${escapeHtml(item.productId)}</strong></div>
+            <div class="muted">User: ${escapeHtml(userId)}</div>
+          </td>
+          <td>
+            <div class="qty-price">
+              <input type="number" id="qty-${escapeId(item.productId)}" value="${qty}" min="1" step="1" />
+              <input type="number" id="price-${escapeId(item.productId)}" value="${pr.toFixed(2)}" step="0.01" min="0.01" />
+            </div>
+          </td>
+          <td class="right">${currency.format(subtotal)}</td>
+          <td class="right">
+            <div class="actions" style="justify-content:flex-end;margin:0;">
+              <button class="btn btn-outline" onclick="updateItem('${escapeAttr(userId)}','${escapeAttr(item.productId)}')">Update</button>
+              <button class="btn btn-danger" onclick="deleteItem('${escapeAttr(userId)}','${escapeAttr(item.productId)}')">Delete</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      container.appendChild(table);
+
+      const summary = document.createElement('div');
+      summary.className = 'summary';
+      summary.innerHTML = `
+        <div><span class="muted">Items:</span> <strong>${totalQuantity}</strong></div>
+        <div><span class="muted">Total:</span> <strong>${currency.format(totalAmount)}</strong></div>
+      `;
+      container.appendChild(summary);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+    function escapeId(str) {
+      return String(str).replace(/[^a-zA-Z0-9_-]/g, '_');
+    }
+    function escapeAttr(str) {
+      return String(str).replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+    }
+
+    async function updateItem(userId, productId) {
+      const qtyEl = document.getElementById(`qty-${escapeId(productId)}`);
+      const priceEl = document.getElementById(`price-${escapeId(productId)}`);
+      const quantity = parsePositiveInt(qtyEl && qtyEl.value);
+      const price = parsePositiveFloat(priceEl && priceEl.value);
+
+      if (!Number.isFinite(quantity) || !Number.isFinite(price)) {
+        showToast('Please enter valid quantity and price.', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${backendBaseUrl}/cart/${encodeURIComponent(userId)}/${encodeURIComponent(productId)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ quantity, price }),
+          cache: 'no-store'
+        });
+        await handleJsonResponse(res);
+        showToast('Item updated successfully!', 'success');
+        await fetchCart();
+      } catch (err) {
+        showToast(err.message || 'Failed to update item', 'error');
+      }
+    }
+
+    async function deleteItem(userId, productId) {
+      if (!confirm('Are you sure you want to delete this item?')) return;
+      try {
+        const res = await fetch(`${backendBaseUrl}/cart/${encodeURIComponent(userId)}/${encodeURIComponent(productId)}`, {
+          method: 'DELETE',
+          cache: 'no-store'
+        });
+        if (!res.ok) throw new Error('Failed to delete item');
+        showToast('Item deleted successfully!', 'success');
+        await fetchCart();
+      } catch (err) {
+        showToast(err.message || 'Failed to delete item', 'error');
+      }
+    }
+
+    async function clearCart() {
+      const userId = document.getElementById('fetchUserIdInput').value.trim();
+      const clearBtn = document.getElementById('clearBtn');
+      setBusy(clearBtn, true);
+
+      if (!userId) {
+        showToast('Please enter a User ID to clear cart.', 'error');
+        setBusy(clearBtn, false);
+        return;
+      }
+
+      if (!confirm('Are you sure you want to clear the entire cart?')) {
+        setBusy(clearBtn, false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${backendBaseUrl}/cart/${encodeURIComponent(userId)}`, {
+          method: 'DELETE',
+          cache: 'no-store'
+        });
+        if (!res.ok) throw new Error('Failed to clear cart');
+        showToast('Cart cleared successfully!', 'success');
+        await fetchCart();
+      } catch (err) {
+        showToast(err.message || 'Error clearing cart', 'error');
+      } finally {
+        setBusy(clearBtn, false);
+      }
+    }
+
+    // Initialization
+    renderGallery();
+  </script>
+</body>
+</html>

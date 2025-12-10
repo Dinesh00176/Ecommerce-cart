@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ecart - Products</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #11182a;
+      --panel-2: #0e1424;
+      --text: #e8eefc;
+      --muted: #a9b4ce;
+      --primary: #4f8cff;
+      --primary-600: #3e73d4;
+      --border: #1e2741;
+      --accent: #21d4fd;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --gold: #ffb400;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 10% -10%, #183153 0%, transparent 60%),
+        radial-gradient(1200px 700px at 110% 10%, #1a2d4f 0%, transparent 60%),
+        linear-gradient(180deg, #0a0f1f 0%, #0b1020 100%);
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar { position: sticky; top: 0; z-index: 50; background: linear-gradient(180deg, #0e162c 0%, #0c1428 100%); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
+    .topbar-inner { max-width: 1200px; margin: 0 auto; padding: 10px 16px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: 0.3px; }
+    .brand .logo { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 70%); box-shadow: 0 8px 24px rgba(79, 140, 255, 0.35); }
+    .nav { display: inline-flex; gap: 10px; justify-content: flex-end; align-items: center; }
+    .link { padding: 8px 12px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,0.02); text-decoration: none; font-size: 12px; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 40px; }
+    .controls { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; }
+    .search { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: grid; grid-template-columns: 1fr auto; }
+    .search input { background: transparent; border: 0; outline: none; color: var(--text); padding: 12px 14px; font-size: 14px; }
+    .search button { appearance: none; border: 0; background: linear-gradient(180deg, var(--primary) 0%, var(--primary-600) 100%); color: white; font-weight: 700; padding: 0 16px; cursor: pointer; }
+    select { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text); border-radius: 12px; padding: 10px 12px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; }
+    .card { display: grid; gap: 8px; background: linear-gradient(180deg, #10182b 0%, #0f172a 100%); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .card img { width: 100%; height: 160px; object-fit: cover; background: #0b1224; }
+    .body { padding: 10px; display: grid; gap: 6px; }
+    .name { font-weight: 800; font-size: 14px; }
+    .meta { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; }
+    .actions { padding: 10px; display: grid; grid-template-columns: 1fr auto auto; gap: 8px; }
+    .btn { appearance: none; border: 0; padding: 10px 14px; border-radius: 10px; font-weight: 800; cursor: pointer; color: white; box-shadow: 0 8px 18px rgba(79, 140, 255, 0.25); }
+    .btn-primary { background: linear-gradient(180deg, var(--primary) 0%, var(--primary-600) 100%); }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); box-shadow: none; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>Ecart</div>
+      </div>
+      <div></div>
+      <nav class="nav">
+        <a class="link" href="index.html">Home</a>
+        <a class="link" href="products.html">Products</a>
+        <a class="link" href="wishlist.html">Wishlist</a>
+        <a class="link" href="cart.html">Cart</a>
+        <a class="link" href="login.html" id="authLink">Login</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="controls">
+      <div class="search" role="search">
+        <input type="text" id="q" placeholder="Search products..." oninput="render()" autocomplete="off" />
+        <button onclick="render()">Search</button>
+      </div>
+      <select id="category" onchange="render()">
+        <option value="">All categories</option>
+        <option value="audio">Audio</option>
+        <option value="storage">Storage</option>
+        <option value="peripherals">Peripherals</option>
+        <option value="display">Display</option>
+      </select>
+      <select id="sort" onchange="render()">
+        <option value="relevance">Sort: Relevance</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+      </select>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <script>
+    const currency = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' });
+    const catalog = [
+      { id: 'B00X4WHP5E', name: 'Noise‑Canceling Headphones', price: 129.99, img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop', category: 'audio' },
+      { id: 'B08K2S1H5L', name: '4K Ultra HD Monitor 27"', price: 289.00, img: 'https://images.unsplash.com/photo-1588200908342-23b585c03e26?q=60&w=600&auto=format&fit=crop', category: 'display' },
+      { id: 'B09G6SB1M7', name: 'Mechanical Keyboard RGB', price: 89.50, img: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?q=80&w=800&auto=format&fit=crop', category: 'peripherals' },
+      { id: 'B07Y8XJ8LN', name: 'Wireless Mouse Pro', price: 39.95, img: 'https://images.unsplash.com/photo-1514254651968-1c86261335e9?q=60&w=600&auto=format&fit=crop', category: 'peripherals' },
+      { id: 'B0A9M8N7L6', name: 'Portable SSD 1TB', price: 119.00, img: 'https://images.unsplash.com/photo-1719937206300-fc0dac6f8cac?q=60&w=600&auto=format&fit=crop', category: 'storage' },
+      { id: 'B0D5E6F7G8', name: 'Smart Speaker Mini', price: 49.00, img: 'https://images.unsplash.com/photo-1549638767-0ccf6cb1281b?q=60&w=600&auto=format&fit=crop', category: 'audio' },
+      { id: 'B081T7YV7B', name: '1080p Webcam', price: 59.00, img: 'https://images.unsplash.com/photo-1726127461372-547b9ffa4236?q=80&w=972&auto=format&fit=crop', category: 'peripherals' }
+    ];
+    const placeholder = 'https://via.placeholder.com/320x200/0b1020/e8eefc?text=No+Image';
+    function getWishlist(){ try { return JSON.parse(localStorage.getItem('wishlist') || '[]'); } catch { return []; } }
+    function setWishlist(ids){ localStorage.setItem('wishlist', JSON.stringify(ids || [])); }
+    function inWishlist(id){ return getWishlist().includes(id); }
+    function toggleWish(id){ const ids = getWishlist(); const i = ids.indexOf(id); if (i>=0) ids.splice(i,1); else ids.push(id); setWishlist(ids); render(); }
+
+    function syncAuth() {
+      const isAuthed = sessionStorage.getItem('authenticated') === 'true';
+      const authLink = document.getElementById('authLink');
+      authLink.textContent = isAuthed ? 'Logout' : 'Login';
+      authLink.onclick = (e) => {
+        if (!isAuthed) return;
+        e.preventDefault();
+        sessionStorage.clear();
+        syncAuth();
+      };
+    }
+
+    function render() {
+      const q = (document.getElementById('q').value || '').toLowerCase();
+      const cat = document.getElementById('category').value;
+      const sort = document.getElementById('sort').value;
+      let list = catalog.filter(p => (!cat || p.category === cat) && (!q || (p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q))));
+      if (sort === 'price_asc') list = list.sort((a,b)=>a.price-b.price);
+      if (sort === 'price_desc') list = list.sort((a,b)=>b.price-a.price);
+
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      list.forEach(p => {
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.innerHTML = `
+          <img src="${p.img}" alt="${p.name}" onerror="this.onerror=null;this.src='${placeholder}'" />
+          <div class="body">
+            <div class="name">${p.name}</div>
+            <div class="meta"><span>${currency.format(p.price)}</span><span class="muted">${p.id}</span></div>
+          </div>
+          <div class="actions">
+            <a class="btn btn-primary" href="cart.html" onclick="sessionStorage.setItem('prefillProductId','${p.id}')">Add to Cart</a>
+            <a class="btn btn-ghost" href="product.html?id=${encodeURIComponent(p.id)}">Details</a>
+            <button class="btn btn-ghost" onclick="toggleWish('${p.id}')">${inWishlist(p.id) ? '♥ Remove' : '♡ Wishlist'}</button>
+          </div>
+        `;
+        grid.appendChild(el);
+      });
+    }
+
+    syncAuth();
+    render();
+  </script>
+</body>
+</html>
